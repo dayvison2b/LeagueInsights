@@ -29,6 +29,10 @@ class Summoner:
     def summoner_level(self) -> int:
         return self._get_summoner_info().get("summonerLevel", 0)
 
+    @property
+    def summoner_info(self) -> int:
+        return self._get_summoner_info()
+
     def _get_summoner_info(self):
         if not self._summoner_info:
             if self._account_id:

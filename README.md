@@ -6,7 +6,6 @@ This project aims to provide insights and analysis for League of Legends players
 
 - Collect summoner information
 - Analyze match history
-- ... (list other features)
 
 ## Getting Started
 
@@ -24,6 +23,5 @@ This section describes how to use different parts of the project.
 
 The summoner module allows you to collect information about a summoner.
 
-- `get_account_id()`: Get the account ID of the summoner.
-- `get_summoner_name()`: Get the summoner's name.
-- ... (list other methods)
+- `account_id()`: Get the account ID of the summoner.
+- `summoner_name()`: Get the summoner's name.

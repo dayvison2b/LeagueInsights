@@ -2,3 +2,5 @@
 venv/
 virtualvenv/
 /venv/
+
+config.json
