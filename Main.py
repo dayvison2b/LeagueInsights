@@ -6,5 +6,5 @@ with open('config.json') as config_file:
     api_key = config['api_key']
 
 # Example usage:
-summoner = Summoner(api_key,summoner_name="Perseüs")
-print(summoner.summoner_name)
+#summoner = Summoner(api_key, summoner_name="Perseüs")
+print(Summoner.summoner_exists(api_key,"nonexistentsummonertest1232"))

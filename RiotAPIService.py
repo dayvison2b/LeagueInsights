@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Union
 import requests
 from CustomExceptions import *
 
+
 class RiotAPIService:
     """
     This class is a module and all classes that need to request from Riot API will instantiate it.
@@ -39,7 +40,6 @@ class RiotAPIService:
                 raise SummonerNotFoundError("Summoner not found.")
             else:
                 raise http_error
-
 
     def get_summoner_by_name(self, summoner_name: str) -> Dict[str, Any]:
         """

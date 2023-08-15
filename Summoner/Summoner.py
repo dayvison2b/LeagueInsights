@@ -1,4 +1,5 @@
 from typing import Optional, List, Dict, Any
+from CustomExceptions import SummonerNotFoundError
 from RiotAPIService import RiotAPIService  # Import RiotAPIService module
 from datetime import datetime
 
@@ -8,8 +9,11 @@ class Summoner:
     @staticmethod
     def summoner_exists(api_key: str, summoner_name: str, region: str = "br1") -> bool:
         riot_api = RiotAPIService(api_key, region)
-        summoner_info = riot_api.get_summoner_by_name(summoner_name)
-        return summoner_info is not None
+        try:
+            summoner_info = riot_api.get_summoner_by_name(summoner_name)
+            return True
+        except SummonerNotFoundError:
+            return False
 
     def __init__(self, api_key: str, summoner_name: Optional[str] = None, account_id: Optional[str] = None,
                  summoner_id: Optional[str] = None, region: str = "br1") -> None:
@@ -66,12 +70,12 @@ class Summoner:
     @property
     def summoner_masteries(self) -> dict[str, Any]:
         """Get the summoner's champion masteries."""
-        return self._riot_api.get_masteries(self._summoner_info["id"])
+        return self._riot_api.get_masteries(self._get_summoner_info()["id"])
 
     @property
     def summoner_info(self) -> Dict[str, Any]:
         """Get the complete summoner info."""
-        return self._summoner_info()
+        return self._get_summoner_info()
 
     def get_match_history(self) -> List[dict]:
         """
@@ -79,7 +83,7 @@ class Summoner:
 
         :return: List of match history details.
         """
-        match_ids = self._riot_api.get_match_ids_by_puuid(self._summoner_info["puuid"])
+        match_ids = self._riot_api.get_match_ids_by_puuid(self._get_summoner_info()["puuid"])
         match_history = []
         for match_id in match_ids:
             match_details = self._riot_api.get_match_details_by_id(match_id)
