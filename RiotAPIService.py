@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List, Union
 
 import requests
 
@@ -22,7 +22,7 @@ class RiotAPIService:
         self._region = region
         self._base_url = f"https://{self._region}.api.riotgames.com/lol"
 
-    def _make_request(self, endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+    def _make_request(self, endpoint: str, params: Dict[str, Any] = None):
         """
         Make a request to the Riot API.
         :param endpoint: API endpoint.
@@ -61,5 +61,42 @@ class RiotAPIService:
         :return: Summoner information.
         """
         endpoint = f"summoner/v4/summoners/{summoner_id}"
-        params: dict[str, str] = {"api_key": self._api_key}
+        params: dict[str, Any] = {"api_key": self._api_key}
         return self._make_request(endpoint, params=params)
+
+    def get_current_match(self, summoner_id) -> Dict:
+        endpoint = f"spectator/v4/active-games/by-summoner/{summoner_id}"
+        params: dict[str, Any] = {"api_key": self._api_key}
+        return self._make_request(endpoint, params=params)
+
+    def get_masteries(self, summoner_id) -> dict[str, Any]:
+        endpoint = f"champion-mastery/v4/champion-masteries/by-summoner/{summoner_id}"
+        params: dict[str, Any] = {"api_key": self._api_key}
+        return self._make_request(endpoint, params=params)
+
+    def _make_full_request(self, url: str, params: Dict[str, Any] = None):
+        """
+        Make a request to the Riot API with a complete URL.
+        :param url: Complete URL including the endpoint.
+        :param params: Query parameters.
+        :return: JSON response.
+        """
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Raise an exception if the response is not successful
+        return response.json()
+
+    def get_match_ids_by_puuid(self, puuid: str, start: int = 0, count: int = 20) -> List[str]:
+        endpoint = f"/lol/match/v5/matches/by-puuid/{puuid}/ids"
+        url = f"https://americas.api.riotgames.com{endpoint}"
+        params: dict[str, Union[int, str]] = {
+            "api_key": self._api_key,
+            "start": start,
+            "count": count
+        }
+        return self._make_full_request(url, params=params)
+
+    def get_match_details_by_id(self, match_id: str):
+        endpoint = f"/lol/match/v5/matches/{match_id}"
+        url = f"https://americas.api.riotgames.com{endpoint}"
+        params: dict[str, Any] = {"api_key": self._api_key}
+        return self._make_full_request(url, params=params)

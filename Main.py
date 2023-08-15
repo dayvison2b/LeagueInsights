@@ -6,6 +6,7 @@ with open('config.json') as config_file:
     api_key = config['api_key']
 
 # Example usage:
-summoner = Summoner(api_key, summoner_name="Perseüs")
+summoner = Summoner(api_key)
 summoner._get_summoner_info()
-print(summoner._summoner_info)
+#print(summoner._summoner_info)
+print(summoner.get_match_history())
