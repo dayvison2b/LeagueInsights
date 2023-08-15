@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Union
 
 import requests
-
+from CustomExceptions import *
 
 class RiotAPIService:
     """
@@ -30,9 +30,16 @@ class RiotAPIService:
         :return: JSON response.
         """
         url = f"{self._base_url}/{endpoint}"
-        response = requests.get(url, params=params)
-        response.raise_for_status()  # Raise an exception if the response is not successful
-        return response.json()
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            return response.json()
+        except HTTPError as http_error:
+            if http_error.response.status_code == 404:
+                raise SummonerNotFoundError("Summoner not found.")
+            else:
+                raise http_error
+
 
     def get_summoner_by_name(self, summoner_name: str) -> Dict[str, Any]:
         """

@@ -1,9 +1,16 @@
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, List, Dict, Any
 from RiotAPIService import RiotAPIService  # Import RiotAPIService module
 from datetime import datetime
 
 
 class Summoner:
+
+    @staticmethod
+    def summoner_exists(api_key: str, summoner_name: str, region: str = "br1") -> bool:
+        riot_api = RiotAPIService(api_key, region)
+        summoner_info = riot_api.get_summoner_by_name(summoner_name)
+        return summoner_info is not None
+
     def __init__(self, api_key: str, summoner_name: Optional[str] = None, account_id: Optional[str] = None,
                  summoner_id: Optional[str] = None, region: str = "br1") -> None:
         """
@@ -22,62 +29,12 @@ class Summoner:
         self._summoner_info = None  # To store summoner info
         self._riot_api = RiotAPIService(api_key, region)  # Initialize RiotAPIService instance
 
-    @property
-    def account_id(self) -> str:
-        return self._summoner_info["accountId"]
-
-    @property
-    def summoner_id(self) -> str:
-        return self._summoner_info["id"]
-
-    @property
-    def summoner_name(self) -> str:
-        return self._summoner_info["name"]
-
-    @property
-    def summoner_level(self) -> int:
-        return self._summoner_info["summonerLevel"]
-
-    @property
-    def summoner_masteries(self) -> dict[str, Any]:
-        return self._riot_api.get_masteries(self._summoner_info["id"])
-
-    @property
-    def summoner_info(self) -> Dict[str, Any]:
-        """Get the complete summoner info."""
-        return self._summoner_info()
-
-    def get_match_history(self) -> List[dict]:
-        match_ids = self._riot_api.get_match_ids_by_puuid(self._summoner_info["puuid"])
-        match_history = []
-        for match_id in match_ids:
-            match_details = self._riot_api.get_match_details_by_id(match_id)
-            match_info = self._extract_match_info(match_details)
-            match_history.append(match_info)
-        return match_history
-
-    def _extract_match_info(self, match_details):
-        participant_id = self._find_participant_id(match_details)
-        participant_data = match_details["info"]["participants"][participant_id]
-        match_date = datetime.fromtimestamp(match_details["info"]["gameStartTimestamp"] // 1000)
-        match_result = "Win" if participant_data["win"] else "Defeat"
-
-        return {
-            "match_id": match_details["metadata"]["matchId"],
-            "date": match_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "result": match_result
-        }
-
-    def _find_participant_id(self, match_details):
-        for i, participant in enumerate(match_details["info"]["participants"]):
-            if participant["summonerId"] == self.summoner_id:
-                return i
-        raise ValueError("Summoner not found in participants")
-
     def _get_summoner_info(self):
         """
         Fetch summoner info from Riot API based on available parameters.
         If summoner info is already fetched, return the cached info.
+
+        :return: Summoner info.
         """
         if not self._summoner_info:
             if self._account_id:
@@ -90,7 +47,72 @@ class Summoner:
                 raise ValueError("At least one summoner information must be provided.")
         return self._summoner_info
 
-    def exists(self) -> bool:
-        """Check if the summoner exists."""
-        summoner_info = self._get_summoner_info()
-        return summoner_info is not None
+    @property
+    def account_id(self) -> str:
+        return self._get_summoner_info()["accountId"]
+
+    @property
+    def summoner_id(self) -> str:
+        return self._get_summoner_info()["id"]
+
+    @property
+    def summoner_name(self) -> str:
+        return self._get_summoner_info()["name"]
+
+    @property
+    def summoner_level(self) -> int:
+        return self._get_summoner_info()["summonerLevel"]
+
+    @property
+    def summoner_masteries(self) -> dict[str, Any]:
+        """Get the summoner's champion masteries."""
+        return self._riot_api.get_masteries(self._summoner_info["id"])
+
+    @property
+    def summoner_info(self) -> Dict[str, Any]:
+        """Get the complete summoner info."""
+        return self._summoner_info()
+
+    def get_match_history(self) -> List[dict]:
+        """
+        Get the summoner's match history.
+
+        :return: List of match history details.
+        """
+        match_ids = self._riot_api.get_match_ids_by_puuid(self._summoner_info["puuid"])
+        match_history = []
+        for match_id in match_ids:
+            match_details = self._riot_api.get_match_details_by_id(match_id)
+            match_info = self._extract_match_info(match_details)
+            match_history.append(match_info)
+        return match_history
+
+    def _extract_match_info(self, match_details):
+        """
+        Extract match information from a match.
+
+        :param match_details: Details of the match.
+        :return: Dictionary with match information.
+        """
+        participant_id = self._find_participant_id(match_details)
+        participant_data = match_details["info"]["participants"][participant_id]
+        match_date = datetime.fromtimestamp(match_details["info"]["gameStartTimestamp"] // 1000)
+        match_result = "Win" if participant_data["win"] else "Defeat"
+
+        return {
+            "match_id": match_details["metadata"]["matchId"],
+            "date": match_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "result": match_result
+        }
+
+    def _find_participant_id(self, match_details):
+        """
+        Find the participant ID for the summoner.
+
+        :param match_details: Details of the match.
+        :return: Participant ID.
+        """
+        for i, participant in enumerate(match_details["info"]["participants"]):
+            if participant["summonerId"] == self.summoner_id:
+                return i
+        raise ValueError("Summoner not found in participants")
