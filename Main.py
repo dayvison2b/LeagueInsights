@@ -1,4 +1,5 @@
 from Summoner.Summoner import Summoner
+from Champion.Champion import Champion
 import json
 
 with open('config.json') as config_file:
@@ -6,5 +7,5 @@ with open('config.json') as config_file:
     api_key = config['api_key']
 
 # Example usage:
-#summoner = Summoner(api_key, summoner_name="Perseüs")
-print(Summoner.summoner_exists(api_key,"nonexistentsummonertest1232"))
+champions = Champion(api_key)
+print(champions.get_champions_list())

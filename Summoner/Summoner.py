@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any
 from CustomExceptions import SummonerNotFoundError
-from RiotAPIService import RiotAPIService  # Import RiotAPIService module
+from Summoner.SummonerAPI import SummonerAPI  # Import SummonerAPI module
 from datetime import datetime
 
 
@@ -8,9 +8,9 @@ class Summoner:
 
     @staticmethod
     def summoner_exists(api_key: str, summoner_name: str, region: str = "br1") -> bool:
-        riot_api = RiotAPIService(api_key, region)
+        summoner_api = SummonerAPI(api_key, region)
         try:
-            summoner_info = riot_api.get_summoner_by_name(summoner_name)
+            summoner_info = summoner_api.get_summoner_by_name(summoner_name)
             return True
         except SummonerNotFoundError:
             return False
@@ -31,7 +31,7 @@ class Summoner:
         self._summoner_id = summoner_id
         self._region = region
         self._summoner_info = None  # To store summoner info
-        self._riot_api = RiotAPIService(api_key, region)  # Initialize RiotAPIService instance
+        self._summoner_api = SummonerAPI(api_key, region)  # Initialize SummonerAPI instance
 
     def _get_summoner_info(self):
         """
@@ -42,11 +42,11 @@ class Summoner:
         """
         if not self._summoner_info:
             if self._account_id:
-                self._summoner_info = self._riot_api.get_summoner_by_account_id(self._account_id)
+                self._summoner_info = self._summoner_api.get_summoner_by_account_id(self._account_id)
             elif self._summoner_id:
-                self._summoner_info = self._riot_api.get_summoner_by_summoner_id(self._summoner_id)
+                self._summoner_info = self._summoner_api.get_summoner_by_summoner_id(self._summoner_id)
             elif self._summoner_name:
-                self._summoner_info = self._riot_api.get_summoner_by_name(self._summoner_name)
+                self._summoner_info = self._summoner_api.get_summoner_by_name(self._summoner_name)
             else:
                 raise ValueError("At least one summoner information must be provided.")
         return self._summoner_info
@@ -70,7 +70,7 @@ class Summoner:
     @property
     def summoner_masteries(self) -> dict[str, Any]:
         """Get the summoner's champion masteries."""
-        return self._riot_api.get_masteries(self._get_summoner_info()["id"])
+        return self._summoner_api.get_masteries(self._get_summoner_info()["id"])
 
     @property
     def summoner_info(self) -> Dict[str, Any]:
@@ -83,10 +83,10 @@ class Summoner:
 
         :return: List of match history details.
         """
-        match_ids = self._riot_api.get_match_ids_by_puuid(self._get_summoner_info()["puuid"])
+        match_ids = self._summoner_api.get_match_ids_by_puuid(self._get_summoner_info()["puuid"])
         match_history = []
         for match_id in match_ids:
-            match_details = self._riot_api.get_match_details_by_id(match_id)
+            match_details = self._summoner_api.get_match_details_by_id(match_id)
             match_info = self._extract_match_info(match_details)
             match_history.append(match_info)
         return match_history
