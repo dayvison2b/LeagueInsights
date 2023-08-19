@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict, Any
-from CustomExceptions import SummonerNotFoundError
+from CustomExceptions import NotFoundError
 from Summoner.SummonerAPI import SummonerAPI  # Import SummonerAPI module
 from datetime import datetime
 
@@ -12,7 +12,7 @@ class Summoner:
         try:
             summoner_info = summoner_api.get_summoner_by_name(summoner_name)
             return True
-        except SummonerNotFoundError:
+        except NotFoundError:
             return False
 
     def __init__(self, api_key: str, summoner_name: Optional[str] = None, account_id: Optional[str] = None,

@@ -1,7 +1,7 @@
 import unittest
 from RiotAPIService import RiotAPIService
 from Summoner import Summoner
-from CustomExceptions import SummonerNotFoundError
+from CustomExceptions import NotFoundError
 import json
 
 with open('../config.json') as config_file:
@@ -24,7 +24,7 @@ class TestRiotPy(unittest.TestCase):
         self.assertTrue(summoner.summoner_info)
         self.assertEqual(summoner.summoner_name, "Perseüs")
         # SummonerNotFoundError test
-        with self.assertRaises(SummonerNotFoundError):
+        with self.assertRaises(NotFoundError):
             summoner = Summoner.Summoner(self.api_key, summoner_name="NonExistentSummonerTest2231")
             # summoner.summoner_name
 

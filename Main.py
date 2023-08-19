@@ -8,4 +8,4 @@ with open('config.json') as config_file:
 
 # Example usage:
 champions = Champion(api_key)
-print(champions.get_champions_list())
+print(champions.get_champion("Fizz"))

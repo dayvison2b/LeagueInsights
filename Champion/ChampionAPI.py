@@ -1,5 +1,5 @@
 from RiotAPIService import RiotAPIService
-from CustomExceptions import SummonerNotFoundError
+from CustomExceptions import NotFoundError
 from typing import Dict, Any, List, Union
 
 

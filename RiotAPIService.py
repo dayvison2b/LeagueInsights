@@ -36,7 +36,7 @@ class RiotAPIService:
             return response.json()
         except HTTPError as http_error:
             if http_error.response.status_code == 404:
-                raise SummonerNotFoundError("Summoner not found.")
+                raise NotFoundError("Summoner not found.")
             else:
                 raise http_error
 
@@ -48,6 +48,13 @@ class RiotAPIService:
         :param params: Query parameters.
         :return: JSON response.
         """
-        response = requests.get(url, params=params)
-        response.raise_for_status()  # Raise an exception if the response is not successful
-        return response.json()
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()  # Raise an exception if the response is not successful
+            return response.json()
+        except HTTPError as http_error:
+            if http_error.response.status_code == 403:
+                raise NotFoundError("Champion not found.")
+            else:
+                raise http_error
+

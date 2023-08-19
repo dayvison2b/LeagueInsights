@@ -1,5 +1,5 @@
 from requests.exceptions import HTTPError
 
 
-class SummonerNotFoundError(Exception):
+class NotFoundError(Exception):
     pass
