@@ -1,19 +1,16 @@
-from League.LeagueAPI import LeagueAPI
+from League.League import League
 from Summoner.Summoner import Summoner
 from Champion.Champion import Champion
 import json
 import asyncio
 
+with open('config.json') as config_file:
+    config = json.load(config_file)
+    api_key = config['api_key']
 
-async def main():
-    with open('config.json') as config_file:
-        config = json.load(config_file)
-        api_key = config['api_key']
-
-    liga = LeagueAPI(api_key)
-    league_entries = liga.get_league_entries("BRONZE", "IV", queue="RANKED_SOLO_5x5")
-    print(league_entries)
+league = League(api_key)
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+
+#if __name__ == "__main__":
+    #asyncio.run(main())
