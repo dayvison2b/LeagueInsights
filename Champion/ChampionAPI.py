@@ -26,7 +26,7 @@ class ChampionAPI(RiotAPIService):
         super().__init__(api_key, region)
         self.base_url = "https://ddragon.leagueoflegends.com/cdn/{version}/data/{language}"
         self.version = "11.16.1"  # Current version may vary
-        self.language = self.REGION_LANGUAGE_MAPPING.get(region,"en_US")  # Use en_US as default
+        self.language = self.REGION_LANGUAGE_MAPPING.get(region, "en_US")  # Use en_US as default
 
     def get_champions(self) -> Dict[str, Any]:
         """
