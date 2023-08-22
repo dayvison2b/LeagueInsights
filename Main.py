@@ -8,7 +8,8 @@ with open('config.json') as config_file:
     config = json.load(config_file)
     api_key = config['api_key']
 
-league = League(api_key)
+summoner = Summoner(api_key)
+print(summoner.get_summoner_by_name("Perseüs"))
 
 
 

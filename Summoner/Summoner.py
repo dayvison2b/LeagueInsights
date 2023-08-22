@@ -40,7 +40,7 @@ class Summoner:
 
         :return: Summoner info.
         """
-        if not self._summoner_info:
+        if not self._summoner_info or self._summoner_info["name"] != self._summoner_name:
             if self._account_id:
                 self._summoner_info = self._summoner_api.get_summoner_by_account_id(self._account_id)
             elif self._summoner_id:
@@ -75,6 +75,10 @@ class Summoner:
     @property
     def summoner_info(self) -> Dict[str, Any]:
         """Get the complete summoner info."""
+        return self._get_summoner_info()
+
+    def get_summoner_by_name(self, summoner_name):
+        self._summoner_name = summoner_name
         return self._get_summoner_info()
 
     def get_match_history(self) -> List[dict]:
