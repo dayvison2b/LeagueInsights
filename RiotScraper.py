@@ -4,6 +4,7 @@ import datetime
 import json
 from League.League import League
 from Summoner.Summoner import Summoner
+from CustomExceptions import NotFoundError
 
 
 async def fetch_summoner_names(league, tier, division, queue, page):
@@ -12,8 +13,28 @@ async def fetch_summoner_names(league, tier, division, queue, page):
 
 
 def fetch_summoner_info(summoner, summoner_name):
-    summoner_info = summoner.get_summoner_by_name(summoner_name)
-    return summoner_info
+    try:
+        summoner_info = [summoner.get_summoner_by_name(summoner_name), summoner.summoner_masteries[0]]
+        return summoner_info
+    except NotFoundError:
+        return False
+
+
+def create_summoners_table(conn):
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS summoners (id TEXT, name TEXT, level TEXT, profileIcon TEXT, "
+                   "mainChampion TEXT, greaterMasterie TEXT, lastPlayTime TEXT)")
+    conn.commit()
+
+
+def insert_summoner_info(conn, summoner_info):
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO summoners (id, name, level, profileIcon, mainChampion, greaterMasterie, lastPlayTime) "
+                   "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   (summoner_info[0]['id'], summoner_info[0]['name'], summoner_info[0]['summonerLevel'],
+                    summoner_info[0]['profileIconId'], summoner_info[1]['championId'],
+                    summoner_info[1]['championPoints'], summoner_info[1]['lastPlayTime']))
+    conn.commit()
 
 
 async def main():
@@ -24,13 +45,15 @@ async def main():
     league = League(api_key)
     summoner = Summoner(api_key)
 
-    summoner_names = []
-    requests_made = 1
-
     elo_divisions = [
         ("IRON", "I")  # , ("IRON", "II"), ("IRON", "III"), ("IRON", "IV"),
         # ("BRONZE", "I"), ("BRONZE", "II"), ("BRONZE", "III"), ("BRONZE", "IV")
     ]
+
+    conn = sqlite3.connect("summoners.db")
+    create_summoners_table(conn)
+
+    requests_made = 1
     for tier, division in elo_divisions:
         page = 1
         while True:
@@ -42,20 +65,12 @@ async def main():
                 if not names:
                     break
 
-                # conn = sqlite3.connect("summoners.db")
-                # cursor = conn.cursor()
-                # cursor.execute("CREATE TABLE IF NOT EXISTS summoners (name TEXT, level TEXT, profileIcon TEXT)")
-                #
                 for summoner_name in names:
                     print(summoner_name)
                     summoner_info = fetch_summoner_info(summoner, summoner_name)
                     print(summoner_info)
-                #
-                #     cursor.execute("INSERT INTO summoners (name, level, profileIcon) VALUES (?, ?, ?)",
-                #                    (summoner_info['name'], summoner_info['summonerLevel'],
-                #                     summoner_info['profileIconId']))
-                # conn.commit()
-                # conn.close()
+                    if summoner_info:
+                        insert_summoner_info(conn, summoner_info)
 
                 print(f"Requisição {requests_made} finalizada: {current_time}")
                 requests_made += 1
@@ -65,6 +80,7 @@ async def main():
                 print(f"An error occurred: {e}")
                 quit()
 
+    conn.close()
 
 
 if __name__ == "__main__":

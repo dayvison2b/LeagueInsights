@@ -9,7 +9,8 @@ with open('config.json') as config_file:
     api_key = config['api_key']
 
 summoner = Summoner(api_key)
-print(summoner.get_summoner_by_name("Perseüs"))
+summoner.get_summoner_by_name("Taldo300")
+
 
 
 

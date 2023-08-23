@@ -77,7 +77,7 @@ class Summoner:
         """Get the complete summoner info."""
         return self._get_summoner_info()
 
-    def get_summoner_by_name(self, summoner_name):
+    def get_summoner_by_name(self, summoner_name: str):
         self._summoner_name = summoner_name
         return self._get_summoner_info()
 
