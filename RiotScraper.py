@@ -46,7 +46,7 @@ async def main():
     summoner = Summoner(api_key)
 
     elo_divisions = [
-        ("IRON", "I")  # , ("IRON", "II"), ("IRON", "III"), ("IRON", "IV"),
+        ("IRON", "I"), ("IRON", "II")  # , ("IRON", "III"), ("IRON", "IV"),
         # ("BRONZE", "I"), ("BRONZE", "II"), ("BRONZE", "III"), ("BRONZE", "IV")
     ]
 
@@ -66,11 +66,13 @@ async def main():
                     break
 
                 for summoner_name in names:
-                    print(summoner_name)
-                    summoner_info = fetch_summoner_info(summoner, summoner_name)
-                    print(summoner_info)
-                    if summoner_info:
-                        insert_summoner_info(conn, summoner_info)
+                    try:
+                        summoner_info = fetch_summoner_info(summoner, summoner_name)
+                        if summoner_info:
+                            insert_summoner_info(conn, summoner_info)
+                    except Exception as e:
+                        print(f"An error occurred for summoner {summoner_name}: {e}")
+                        continue
 
                 print(f"Requisição {requests_made} finalizada: {current_time}")
                 requests_made += 1
@@ -78,7 +80,7 @@ async def main():
 
             except Exception as e:
                 print(f"An error occurred: {e}")
-                quit()
+                continue
 
     conn.close()
 
